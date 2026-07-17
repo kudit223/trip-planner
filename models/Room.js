@@ -19,8 +19,9 @@ const RoomSchema = new mongoose.Schema({
         required:true,
     },
     status:{
-        enum:["active","readonly","expired"],
-        default:"active"
+        type:String,
+        enum:['active','readonly','expired'],
+        default:'active'
     }
 
 },{timestamps:true});
