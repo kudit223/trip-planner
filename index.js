@@ -6,9 +6,9 @@ const cookieParser = require('cookie-parser');
 const {Server} = require('socket.io')
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require('./routes/roomRoutes');
-const { userJoined } = require('./sockets/chatSocket');
+const  socketConnection  = require('./sockets/chatSocket');
 const cors = require('cors')
-
+const socketAuth = require('./middlewares/socketAuth')
 
 // express app
 const app = express();
@@ -30,6 +30,7 @@ app.use(cookieParser());
 
 
 
+
 // routes
 app.use('/user',authRoutes)
 app.use('/room',roomRoutes)
@@ -38,13 +39,16 @@ app.use('/room',roomRoutes)
 const server = http.createServer(app);
 
 // socket.io server
-const io = new Server(server);
+const io = new Server(server,{
+    cors:{
+        origin:'http://localhost:5173',
+        credentials:true
+    }
+});
 
-io.on('connection',(socket)=>{
-    console.log('User connected!!');
+io.use(socketAuth)
 
-    socket.on('user_joined',userJoined);
-})
+io.on('connection',(socket) => socketConnection(io, socket))
 
 //server running 
 server.listen(process.env.PORT,()=>{
